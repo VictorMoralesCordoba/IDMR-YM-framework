@@ -1,0 +1,32 @@
+# Changelog – IDMR–YM v1.0
+
+## Release Date
+October 2025
+
+## Status
+Initial version published on Zenodo
+
+## Added
+- Extended Lagrangian with dual induced mass mechanism
+- Full derivation of field equations:
+  - Modified Dirac equation
+  - Scalar saturation dynamics
+  - Einstein equations with scalar-dependent metric
+- Table of testable predictions
+- Numerical examples for mass, g–2, and cosmological expansion
+- Explicit linkage to GRB–IDMR v2.1, GPS–IDMR v2.3, and Scalar Saturation IDMR
+- Technical README in LaTeX with modular structure
+
+## In Development
+- Numerical implementation of field equations
+- Phenomenological validation with observational data
+- Non-Abelian extensions and full cosmological framework
+
+## License
+CC-BY 4.0 International
+
+## Author
+Victor Eduardo Morales Córdoba  
+Email: vmorales@uned.cr  
+ORCID: https://orcid.org/0009-0000-8787-6141
+

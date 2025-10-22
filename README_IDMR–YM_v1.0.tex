@@ -1,0 +1,148 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\geometry{margin=1in}
+
+\title{IDMR--YM: Induced Mass and Metric Rescaling Framework}
+\author{
+Victor Eduardo Morales Córdoba \\
+Email: \texttt{vmorales@uned.cr} \\
+ORCID: \href{https://orcid.org/0009-0000-8787-6141}{0009-0000-8787-6141}
+}
+
+\date{Versión 1.0 -- Octubre 2025}
+
+\begin{document}
+
+\maketitle
+
+\section*{�� Resumen Ejecutivo}
+\textbf{IDMR--YM} es un marco teórico unificado que reinterpreta el mecanismo de masa fermiónica y la geometría del espacio-tiempo mediante \textbf{saturación escalar} y \textbf{métrica dinámica}. Combina conceptos de teoría gauge, relatividad general y campos escalares para ofrecer una descripción geométrica de la masa inducida.
+
+\section*{�� Fundamento Teórico}
+\begin{itemize}
+  \item \textbf{Masa Inducida}: Los fermiones adquieren masa mediante acoplamiento a un campo escalar de saturación \( \phi \)
+  \item \textbf{Métrica Dinámica}: El campo escalar modula la geometría del espacio-tiempo vía \( g_{\mu\nu}(\phi) = \eta_{\mu\nu} f(\phi) \)
+  \item \textbf{Conexión Extendida}: Unificación de transporte gauge y modulación escalar
+\end{itemize}
+
+\textbf{Lagrangiano Fundamental:}
+
+
+\[
+\mathcal{L}_{\text{IDMR--YM}} = \bar{\psi}(i\gamma^\mu D_\mu - m(\phi))\psi + \frac{1}{2}g^{\mu\nu}(\phi)\partial_\mu \phi \partial_\nu \phi - V(\phi) - \frac{1}{4}F^{\mu\nu}F_{\mu\nu}
+\]
+
+
+
+\section*{�� Ecuaciones de Campo Derivadas}
+\subsection*{1. Ecuación de Dirac Modificada}
+
+
+\[
+(i\gamma^\mu D_\mu - m(\phi) + \lambda\phi^2)\psi = 0
+\]
+
+
+\textbf{Donde:}
+\begin{itemize}
+  \item \( D_\mu = \partial_\mu + ieA_\mu + \Gamma_\mu(\phi) \)
+  \item \( m(\phi) = \alpha\phi^2 + \beta\partial_\mu\phi\partial^\mu\phi \)
+  \item \( \Gamma_\mu(\phi) \) modula fase y dispersión fermiónica
+\end{itemize}
+
+\subsection*{2. Ecuación Escalar de Saturación}
+
+
+\[
+\Box\phi + \frac{\partial V}{\partial\phi} - 2\alpha\phi\bar{\psi}\psi - \beta\partial_\mu(\bar{\psi}\psi\partial^\mu\phi) + \frac{1}{2}\frac{\partial f}{\partial\phi}T^{\mu\nu}_{(\psi)}\eta_{\mu\nu} = 0
+\]
+
+
+
+\subsection*{3. Ecuaciones de Einstein Modificadas}
+
+
+\[
+G_{\mu\nu}(g(\phi)) = 8\pi G\left(T^{(\psi)}_{\mu\nu} + T^{(\phi)}_{\mu\nu} + T^{(\text{gauge})}_{\mu\nu}\right)
+\]
+
+
+\textbf{Con métrica dinámica:} \( g_{\mu\nu}(\phi) = \eta_{\mu\nu}f(\phi) \), donde \( f(\phi) = 1 + \epsilon\phi^2 + O(\phi^4) \)
+
+\section*{�� Predicciones Testables}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Observable} & \textbf{Predicción IDMR--YM} & \textbf{Método de Verificación} \\
+\hline
+Masa del electrón & \( m_e = \alpha\langle\phi\rangle^2 + \beta(\partial\phi)^2 \) & Ajuste a \( m_e = 511 \text{keV} \) \\
+Factor g--2 & \( \Delta a_e \approx \frac{\epsilon}{8\pi^2}\frac{m_e^2}{m_\phi^2} \) & Comparación con \( a_e^{\text{exp}} \) \\
+Expansión cósmica & \( H(z) \sim H_0\sqrt{f(\phi(z))} \) & Datos de supernovas Type Ia \\
+Ondas gravitacionales & Modos escalares adicionales \( h_{+,\times} + \phi \) & LISA, Einstein Telescope \\
+Constantes variantes & \( \alpha_{\text{EM}}(\phi) \propto f^{-1/2}(\phi) \) & Relojes atómicos, espectros lejanos \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{�� Ejemplos Numéricos}
+\subsection*{Masa Inducida Electrónica}
+Para \( \langle\phi\rangle = 246 \text{GeV} \) y \( \alpha \approx 10^{-11} \):
+
+
+\[
+m_e = \alpha\langle\phi\rangle^2 \approx 0.511 \text{MeV}
+\]
+
+
+
+\subsection*{Corrección a g--2}
+Con \( \epsilon = 0.1 \), \( m_\phi = 1 \text{TeV} \):
+
+
+\[
+\Delta a_e \approx 2.5\times 10^{-14}
+\]
+
+
+
+\subsection*{Modulación Métrica}
+
+
+\[
+f(\phi) = 1 + 0.01\phi^2 \Rightarrow H(z) \approx 1.005H_0\sqrt{\Omega_m(1+z)^3 + \Omega_\Lambda}
+\]
+
+
+
+\section*{�� Conexión con Módulos IDMR}
+\begin{itemize}
+  \item \textbf{GRB--IDMR v2.1}: Expansión métrica en campos gravitacionales fuertes
+  \item \textbf{GPS--IDMR v2.3}: Sincronización relativista con modulación escalar
+  \item \textbf{Saturación Escalar IDMR}: Base conceptual para \( m(\phi) \) y acoplamientos
+\end{itemize}
+
+\section*{�� Citas y Referencias}
+\begin{verbatim}
+@software{IDMR-YM,
+  author = {Victor Eduardo Morales Córdoba},
+  title = {IDMR--YM: Induced Mass and Metric Rescaling Framework},
+  doi = {10.5281/zenodo.XXXXXXX},
+  version = {1.0},
+  publisher = {Zenodo},
+  year = {2025}
+}
+\end{verbatim}
+
+\section*{�� Estado del Proyecto}
+\begin{itemize}
+  \item ✅ Completado: Formulación teórica, ecuaciones de campo
+  \item �� En Desarrollo: Implementación numérica, validación fenomenológica
+  \item �� Próximamente: Extensiones no-abelianas, cosmología completa
+\end{itemize}
+
+\end{document}

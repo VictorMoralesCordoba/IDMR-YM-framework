@@ -1,0 +1,13 @@
+{
+  "title": "IDMR–YM: Induced Mass and Metric Rescaling Framework",
+  "version": "2.4",
+  "author": "Victor Eduardo Morales Córdoba",
+  "email": "vmorales@uned.cr",
+  "orcid": "0009-0000-8787-6141",
+  "license": "CC-BY 4.0 International",
+  "description": "Geometrically consistent implementation of scalar-induced mass and metric modulation, including full Dirac algebra, eigenproblem solver, and visualization tools.",
+  "keywords": ["IDMR–YM", "induced mass", "metric rescaling", "Dirac equation", "scalar field", "quantum geometry"],
+  "repository": "https://github.com/victor-idmr/IDMR-YM-framework",
+  "language": "Python",
+  "dependencies": ["numpy", "scipy", "matplotlib"]
+}
