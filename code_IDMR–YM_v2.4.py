@@ -743,4 +743,90 @@ class IDMR_Analysis:
         
         data = np.column_stack([
             profiles['x'],
-           
+            profiles['phi'],
+            profiles['m_eff'],
+            profiles['f_metric'],
+            np.real(profiles['Gamma_mu'])
+        ])
+        
+        header = "Position [m],Scalar_Field [GeV],Effective_Mass [GeV],Metric_Factor,Gamma_Mu [GeV]"
+        np.savetxt(filename, data, delimiter=',', header=header, fmt='%.6e')
+        
+        print(f"✅ Profiles exported to {filename}")
+
+
+# =============================================================================
+# MAIN EXECUTION - COMPREHENSIVE DEMONSTRATION
+# =============================================================================
+
+if __name__ == "__main__":
+    print("🚀 IDMR–YM Framework v2.4 - Corrected Eigenproblem Implementation")
+    print("=" * 60)
+    
+    # Initialize with physical parameters for electron mass
+    model = IDMR_YM(representation='dirac')
+    
+    # Physical validation at test point
+    x_test = 1e-18
+    A_mu_test = 1.0
+    
+    print(f"\n📊 FIELD VALUES AT x = {x_test:.1e} m:")
+    print(f"   Scalar field φ: {model.phi(x_test):.2e} GeV")
+    print(f"   Effective mass m(φ): {model.m_eff(x_test):.6f} GeV")
+    print(f"   Metric factor f(φ): {model.f_metric(x_test):.6f}")
+    
+    # Comprehensive mass generation test
+    model.test_mass_generation()
+    
+    # Benchmark against physical electron
+    benchmark = model.benchmark_against_electron()
+    print(f"\n🎯 PHYSICAL CONSISTENCY BENCHMARK:")
+    print(f"   Computed mass: {benchmark['computed_mass']:.6f} GeV")
+    print(f"   Target mass:   {benchmark['target_mass']:.6f} GeV")
+    print(f"   Relative error: {benchmark['relative_error_percent']:.2f}%")
+    print(f"   Physically consistent: {benchmark['physically_consistent']}")
+    
+    # Test spatial solver
+    try:
+        print(f"\n🔍 TESTING SPATIAL DIRAC SOLVER...")
+        spatial_solution = model.solve_dirac_spatial_1d([0, 2e-17], 
+                                                       energy=0.000511, 
+                                                       psi0=np.array([1.0, 0.0j]))
+        print(f"   Spatial solver success: {spatial_solution.success}")
+    except Exception as e:
+        print(f"   Spatial solver note: {e}")
+    
+    # Test CORRECTED eigenproblem solver and find bound states
+    try:
+        print(f"\n🎯 SOLVING CORRECTED DIRAC EIGENPROBLEM...")
+        bound_states = model.find_bound_states(num_points=500, num_states=8)
+        
+        print(f"   Bound states found: {bound_states['num_bound_states']}")
+        if bound_states['num_bound_states'] > 0:
+            for i, energy in enumerate(bound_states['bound_energies']):
+                print(f"   State {i}: E = {np.real(energy):.8f} GeV")
+        
+    except Exception as e:
+        print(f"   Eigenproblem note: {e}")
+    
+    # Advanced analysis and visualization
+    analyzer = IDMR_Analysis(model)
+    
+    # Generate comprehensive profiles
+    print(f"\n📈 GENERATING COMPREHENSIVE PROFILES...")
+    fig1 = analyzer.plot_profiles([-3e-18, 3e-18])
+    plt.savefig('idmr_ym_profiles.png', dpi=300, bbox_inches='tight')
+    
+    # Plot bound states if found
+    if 'bound_states' in locals() and bound_states['num_bound_states'] > 0:
+        fig2 = analyzer.plot_bound_states(bound_states)
+        plt.savefig('idmr_ym_bound_states.png', dpi=300, bbox_inches='tight')
+        print("   Bound states plot saved as 'idmr_ym_bound_states.png'")
+    
+    # Export data for reproducibility
+    analyzer.export_profiles([-3e-18, 3e-18], 'idmr_ym_profiles.csv')
+    
+    print(f"\n✅ IDMR–YM v2.4 ANALYSIS COMPLETED SUCCESSFULLY!")
+    print("   Files generated: idmr_ym_profiles.png, idmr_ym_profiles.csv")
+    if 'bound_states' in locals() and bound_states['num_bound_states'] > 0:
+        print("   Additional file: idmr_ym_bound_states.png")
