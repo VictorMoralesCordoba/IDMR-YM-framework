@@ -3,7 +3,7 @@ IDMR–YM: Induced Mass and Metric Rescaling Framework
 Author: Victor Eduardo Morales Córdoba
 Email: vmorales@uned.cr
 ORCID: https://orcid.org/0009-0000-8787-6141
-Version: 2.4 - Corrected Eigenproblem Implementation
+Version: 2.6 - Properly Scaled Parameters
 License: CC-BY 4.0 International
 """
 
@@ -142,36 +142,41 @@ class IDMR_YM:
     - Extended gauge covariance: D_μ = ∂_μ + ieA_μ + iΓ_μ(φ)
     """
     
-    def __init__(self, alpha: float = 1.65e-31, beta: float = 1e-45, 
-                 epsilon: float = 0.01, e_charge: float = 1.0, 
+    def __init__(self, alpha: float = 8.45e-27, beta: float = 1e-45, 
+                 epsilon: float = 1e-25, e_charge: float = 1.0, 
                  dimension: int = 2, representation: str = 'dirac'):
         """
-        Initialize IDMR–YM model with physical parameters
+        Initialize IDMR–YM model with PROPERLY SCALED parameters
         
-        Parameters calibrated for electron mass (0.511 MeV):
-        - α = m_e / φ₀² ≈ 1.65e-31 GeV⁻¹
-        - β = m_e / (∂φ)² ≈ 1e-45 GeV⁻³·m² (attometer scale)
-        - ε = metric modulation (dimensionless)
+        CORRECTED Parameters for electron mass (0.511 MeV):
+        - α = m_e / φ₀² = 0.000511 / (246e9)² ≈ 8.45e-27 GeV⁻¹
+        - β = adjusted for reasonable kinetic mass contribution  
+        - ε = small metric modulation to avoid numerical issues
         """
-        # Physical parameters
-        self.alpha = alpha
-        self.beta = beta
-        self.epsilon = epsilon
+        # PROPERLY SCALED parameters
+        self.alpha = alpha          # CORRECTED: 8.45e-27 (was 8.45e-15)
+        self.beta = beta            # Adjusted for kinetic term
+        self.epsilon = epsilon      # Small to avoid huge metric factors
         self.e = e_charge
         
         # Natural constants
         self.hbar = 6.582119569e-25  # GeV·s
         self.c = 2.99792458e8        # m/s
         self.phi0 = 246e9            # Electroweak VEV [GeV]
-        self.width = 1e-18           # Characteristic length [m]
+        self.width = 1e-15           # MUCH LARGER characteristic length [m] - attometer scale
         
         # Algebraic system
         self.dimension = dimension
         self.gamma_rep = GammaFactory.create_representation(representation, dimension)
         
+        # Calculate expected central mass
+        expected_mass = self.alpha * self.phi0**2
+        
         print(f"✅ IDMR–YM initialized in {dimension}D with {representation} representation")
         print(f"   Target electron mass: 0.000511 GeV")
-        print(f"   Parameters: α={self.alpha:.2e}, β={self.beta:.2e}, ε={self.epsilon}")
+        print(f"   PROPERLY SCALED Parameters: α={self.alpha:.2e}, β={self.beta:.2e}, ε={self.epsilon:.2e}")
+        print(f"   Expected central mass: {expected_mass:.6f} GeV")
+        print(f"   Width scale: {self.width:.1e} m")
     
     # =========================================================================
     # SCALAR FIELD AND MASS GENERATION
@@ -221,8 +226,6 @@ class IDMR_YM:
         
         Derived from: Γ_μ = (1/2) ∂_μ ln(f(φ))
         where f(φ) = 1 + εφ² is the metric modulation
-        
-        This ensures geometric consistency in the extended covariant derivative
         """
         f_phi = self.f_metric(x)
         dphi_dx_val = self.dphi_dx(x)
@@ -371,50 +374,6 @@ class IDMR_YM:
                             method='BDF', rtol=1e-8, atol=1e-10)
         return solution
     
-    def solve_dirac_spatial_1d_optimized(self, x_range: tuple, energy: float = None, 
-                                       A_mu: float = 0.0, psi0: np.ndarray = None) -> object:
-        """
-        Super-optimized spatial solver - minimal operations
-        """
-        if psi0 is None:
-            psi0 = np.array([1.0, 0.0], dtype=complex)
-        
-        if energy is None:
-            energy = 0.000511
-
-        # Precompute gamma matrices and inverses (constant for 1+1D)
-        gamma0 = self.gamma_rep.get_gamma(0)
-        gamma1 = self.gamma_rep.get_gamma(1)
-        gamma1_inv = np.linalg.inv(gamma1)
-        
-        # Precompute constant matrix combinations
-        i_gamma0 = 1j * gamma0
-        neg_i_gamma1_inv = -1j * gamma1_inv
-
-        def dirac_spatial_rhs(x, psi):
-            """Ultra-optimized RHS with minimal operations"""
-            psi_vec = psi.reshape(2, 1)
-            
-            # Local physical parameters
-            m = self.m_eff(x)
-            Gamma_0 = self.Gamma_mu(x, 0)
-            Gamma_1 = self.Gamma_mu(x, 1)
-            
-            # Compute D₀ coefficient
-            D0_coeff = -1j * energy + 1j * self.e * A_mu + 1j * Gamma_0
-            
-            # Single combined RHS calculation
-            term1 = i_gamma0 @ (D0_coeff * psi_vec)           # iγ⁰D₀ψ
-            term2 = gamma1 @ ((self.e * A_mu + Gamma_1) * psi_vec)  # γ¹(eA₁ + Γ₁)ψ  
-            term3 = m * psi_vec                                # mψ
-            
-            # ∂₁ψ = -i(γ¹)⁻¹ × [term1 + term2 - term3]
-            rhs = neg_i_gamma1_inv @ (term1 + term2 - term3)
-            
-            return rhs.flatten()
-        
-        return solve_ivp(dirac_spatial_rhs, x_range, psi0, method='BDF', rtol=1e-8, atol=1e-10)
-    
     # =========================================================================
     # CORRECTED EIGENPROBLEM SOLVER - STATIONARY STATES
     # =========================================================================
@@ -512,7 +471,7 @@ class IDMR_YM:
             'hamiltonian': H_sparse
         }
     
-    def find_bound_states(self, x_range: tuple = (-5e-18, 5e-18), 
+    def find_bound_states(self, x_range: tuple = (-5e-15, 5e-15), 
                          num_points: int = 1000, num_states: int = 10) -> dict:
         """
         Find bound states in the scalar field potential
@@ -549,7 +508,7 @@ class IDMR_YM:
         Compares computed effective mass with known electron mass
         at different spatial positions
         """
-        test_points = [-2e-18, -1e-18, 0, 1e-18, 2e-18]
+        test_points = [-2e-15, -1e-15, 0, 1e-15, 2e-15]
         
         print("\n🔬 MASS GENERATION VALIDATION:")
         print("Position [m]     φ [GeV]         m_eff [GeV]     Target: 0.000511 GeV")
@@ -724,7 +683,7 @@ class IDMR_Analysis:
             ax2.plot(x_grid, wf_upper + np.real(energies[i]), label=f'State {i}')
         
         ax2.set_xlabel('Position [m]')
-        ax2.set_ylabel('Energy [GeV]')
+        ax2.set_ylabel('Probability Density + Energy Offset')
         ax2.set_title('Bound State Wavefunctions')
         ax2.legend()
         ax2.grid(True, alpha=0.3)
@@ -760,14 +719,14 @@ class IDMR_Analysis:
 # =============================================================================
 
 if __name__ == "__main__":
-    print("🚀 IDMR–YM Framework v2.4 - Corrected Eigenproblem Implementation")
+    print("🚀 IDMR–YM Framework v2.6 - Properly Scaled Parameters")
     print("=" * 60)
     
-    # Initialize with physical parameters for electron mass
+    # Initialize with PROPERLY SCALED physical parameters
     model = IDMR_YM(representation='dirac')
     
     # Physical validation at test point
-    x_test = 1e-18
+    x_test = 1e-15
     A_mu_test = 1.0
     
     print(f"\n📊 FIELD VALUES AT x = {x_test:.1e} m:")
@@ -789,7 +748,7 @@ if __name__ == "__main__":
     # Test spatial solver
     try:
         print(f"\n🔍 TESTING SPATIAL DIRAC SOLVER...")
-        spatial_solution = model.solve_dirac_spatial_1d([0, 2e-17], 
+        spatial_solution = model.solve_dirac_spatial_1d([0, 2e-14], 
                                                        energy=0.000511, 
                                                        psi0=np.array([1.0, 0.0j]))
         print(f"   Spatial solver success: {spatial_solution.success}")
@@ -814,7 +773,7 @@ if __name__ == "__main__":
     
     # Generate comprehensive profiles
     print(f"\n📈 GENERATING COMPREHENSIVE PROFILES...")
-    fig1 = analyzer.plot_profiles([-3e-18, 3e-18])
+    fig1 = analyzer.plot_profiles([-3e-15, 3e-15])
     plt.savefig('idmr_ym_profiles.png', dpi=300, bbox_inches='tight')
     
     # Plot bound states if found
@@ -824,9 +783,9 @@ if __name__ == "__main__":
         print("   Bound states plot saved as 'idmr_ym_bound_states.png'")
     
     # Export data for reproducibility
-    analyzer.export_profiles([-3e-18, 3e-18], 'idmr_ym_profiles.csv')
+    analyzer.export_profiles([-3e-15, 3e-15], 'idmr_ym_profiles.csv')
     
-    print(f"\n✅ IDMR–YM v2.4 ANALYSIS COMPLETED SUCCESSFULLY!")
+    print(f"\n✅ IDMR–YM v2.6 ANALYSIS COMPLETED SUCCESSFULLY!")
     print("   Files generated: idmr_ym_profiles.png, idmr_ym_profiles.csv")
     if 'bound_states' in locals() and bound_states['num_bound_states'] > 0:
         print("   Additional file: idmr_ym_bound_states.png")
